@@ -1,0 +1,30 @@
+## 
+## Xeki Php Framework 
+## GitIgnore file 
+## Version 0.1
+##
+
+# Ides
+/.idea/
+/.vscode/*
+
+
+# Cache twig xeki
+/cache/*
+
+# For yarn 
+static_files/vendor/*
+yarn.lock
+yarn-error.log
+
+# Composer vendor
+libs/vendor
+
+# node
+/node_modules/*
+
+
+#composer
+composer.lock
+
+.DS_Store

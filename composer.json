@@ -1,0 +1,9 @@
+{
+  "config": {
+    "vendor-dir": "libs/vendor"
+  },
+  "require": {
+    "twig/twig": "^2.0",
+    "nikic/fast-route": "^1.3"
+  }
+}

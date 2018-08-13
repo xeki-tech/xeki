@@ -1,0 +1,32 @@
+a, a:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+div[class^='space'], .div[class*='space'] {
+    width: 100%;
+    /*float: left;*/
+    clear: both;
+}
+
+div[class^='space']::after, .div[class*='space']::after {
+    clear: both;
+    display: block;
+    content: '';
+    float: none;
+}
+.space5 {height: 5px !important;}
+.space10 {height: 10px !important;}
+.space20 {height: 20px !important;}
+.space30 {height: 30px !important;}
+.space35 {height: 35px !important;}
+.space40 {height: 40px !important;}
+.space50 {height: 50px !important;}
+.space60 {height: 60px !important;}
+.space80 {height: 80px !important;}
+.space120 {height: 120px !important;}
+.space140 {height: 140px !important;}
+.space180 {height: 180px !important;}
+.space220 {height: 220px !important;}
+.space240 {height: 240px !important;}
+.space410 {height: 410px !important;}
