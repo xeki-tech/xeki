@@ -28,3 +28,8 @@ libs/vendor
 composer.lock
 
 .DS_Store
+
+
+#module admin 
+
+static_files/xeki_admin/
