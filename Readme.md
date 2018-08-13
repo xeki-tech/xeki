@@ -3,11 +3,12 @@
 ## Quick build
 - Instalacion
   
+### Composer 
+Install composer https://getcomposer.org/
 
-```
+After installed run on folder of you proyect composer install
 
-sudo apt-get install -y curl php-cli php-curl
-curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
-composer update
-apt-get install -y php-mbstring
-```
+### Yarn  
+
+Install Yarn https://yarnpkg.com/en/
+After installed run on folder of you proyect yarn install and add your libraries 
