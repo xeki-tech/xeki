@@ -328,7 +328,6 @@ class html_manager
         $_DEBUG_MODE = DEBUG_MODE;
 
         $variables_system = array(
-            "xeki_mobile" => xeki_isMobile(),
             "xeki_IS_MOBILE" => xeki_isMobile(),
             'URL_BASE' => $AG_BASE,
             'URL_BASE_COMPLETE' => $AG_BASE_COMPLETE,

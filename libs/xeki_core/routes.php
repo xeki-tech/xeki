@@ -9,7 +9,7 @@ class routes
     const separator = "-:)(:-";// is a ridiculous separator for not generate config with other tags
 
     public static $main_object = null;
-    public static $vars;
+    private static $vars;
 
     public $REQUEST = false;
 
