@@ -62,6 +62,12 @@ class core
         die();
     }
 
+    public static function get_payload(){
+        $request_body = file_get_contents('php://input');
+        $_PAY_LOAD = json_decode($request_body, true);
+        return $_PAY_LOAD;
+    }
+
     public static function analyze_url()
     {
 
@@ -138,35 +144,30 @@ class core
 
 
 
-        if($type!=302){
-            header("HTTP/1.1 302 Moved Permanently");
-            if (strpos($to, 'http://') !== false || strpos($to, 'https://') !== false) {
-                header('Location: ' . $to, true, 302);
-                echo '<meta http-equiv="refresh" content="0;URL="' . $to . '"/>';
-                echo '<script>window.location.replace("' . $to . '");</script>';
-                die();
-            }
-            header('Location: ' . $AG_BASE . $to, true, 302);
-            echo '<meta http-equiv="refresh" content="0;URL="' . $AG_BASE . $to . '"/>';
-            echo '<script>window.location.replace("' . $AG_BASE . $to . '");</script>';
+
+
+        if (strpos($to, 'http://') !== false || strpos($to, 'https://') !== false) {
+            $to_url  = $to;
         }
         else{
-            if (strpos($to, 'http://') !== false || strpos($to, 'https://') !== false) {
-                header('Location: ' . $to);
-                echo '<meta http-equiv="refresh" content="0;URL="' . $to . '"/>';
-                echo '<script>window.location.replace("' . $to . '");</script>';
-                die();
-            }
-            header('Location: ' . $AG_BASE . $to);
-            echo '<meta http-equiv="refresh" content="0;URL="' . $AG_BASE . $to . '"/>';
-            echo '<script>window.location.replace("' . $AG_BASE . $to . '");</script>';
+            $to_url = $AG_BASE . $to;
         }
 
+        if($type!=302){
+            header("HTTP/1.1 302 Moved Permanently");
+            header('Location: ' . $to_url, true, 302);        }
+        else{
+            header('Location: ' . $to_url);
+        }
+
+
+        echo '<meta http-equiv="refresh" content="0;URL="' . $to_url . '"/>';
+        echo '<script>window.location.replace("' . $to_url . '");</script>';
         die();
+        # Prep string with some basic normalization
     }
 
     function fix_to_slug($url){
-        # Prep string with some basic normalization
         $url = to_no_tildes($url);
         $url = strtolower($url);
         $url = strip_tags($url);
