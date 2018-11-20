@@ -251,6 +251,15 @@ class core
         );
     }
 
+    public static function set_static_files_route(){
+        
+        $route = $_SERVER['SCRIPT_NAME'];
+        $route = str_replace('index.php','',$route);
+        $route = str_replace('libs/xeki_core/_main.php','',$route);
+        $route = "/".$route."static_files/";
+        $route = str_replace('//','/',$route);
+        return $route;
+    }
     public static function text_to_acutes($str)
     {
         $chr_map = array(

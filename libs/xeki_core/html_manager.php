@@ -343,7 +343,7 @@ class html_manager
         $dataArray = array_merge(self::$AG_RENDER_EXTRA_DATA, $dataArray);
 
 
-
+        // d($dataArray);
 //        d($dataArray);
         if(self::$ITEMSCOPE!==""){
             $dataArray['page_item_scope']=self::$ITEMSCOPE;

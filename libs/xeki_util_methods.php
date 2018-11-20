@@ -2,7 +2,7 @@
 /**
  * xeki FRAMEWORK : xeki util methods
  * xeki.io
- * Version 1.0.1
+ * Version 1.0.2
  */
 
 
@@ -543,3 +543,16 @@ function utf8_size($d){return utf8size($d);}
 function utf8ize($d){return utf8size($d);}
 
 
+
+function decode_array($d){
+    if (is_array($d)) {
+        foreach ($d as $k => $v) {
+            $d[$k] = utf8ize($v);
+        }
+    } else if (is_string($d)) {
+        $d = htmlspecialchars_decode(utf8_decode(htmlentities($d, ENT_COMPAT, 'utf-8', false)));
+
+        return $d;
+    }
+    return $d;
+}
