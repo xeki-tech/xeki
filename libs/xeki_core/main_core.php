@@ -44,7 +44,7 @@ class core
     *
     */
     public static $_DEFAULT_PAGE_ERROR = "";
-
+    public static $_DOMAIN = "";
 
 
     public static function init(){
@@ -120,7 +120,12 @@ class core
         $AG_L_PARAM = $AG_L_PARAM == $checker ? '' : $AG_L_PARAM;
 
 
-
+        self::$_DOMAIN =
+            isset($_SERVER['HTTP_X_FORWARDED_HOST']) ?
+                $_SERVER['HTTP_X_FORWARDED_HOST'] :
+                isset($_SERVER['HTTP_HOST']) ?
+                    $_SERVER['HTTP_HOST'] :
+                    $_SERVER['SERVER_NAME'];
 
         self::$URL_BASE = $AG_BASE;
         self::$URL_BASE_COMPLETE = $AG_BASE_COMPLETE;
