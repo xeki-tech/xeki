@@ -2,9 +2,7 @@
 
 /**
  * xeki FRAMEWORK : Main INDEX
- * Version 0.003
- * Add ssl force by url
- * NOT WORK FOR OLD VERSIONS OF xeki
+ * Version 0.1
  */
 
 
@@ -56,13 +54,36 @@ function errorHandlexeki()
 header('Content-Type: text/html; charset=utf-8');
 date_default_timezone_set('America/Bogota');
 
+// option origin valid
+
+
 ## CORS for WS comment this for security
-//if (isset($_SERVER['HTTP_ORIGIN'])) {
-//    header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN'] . "");
-//    header('Access-Control-Allow-Credentials: true');
-//    header('Access-Control-Max-Age: 86400');
-//    header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept');
-//}
+if (isset($_SERVER['HTTP_ORIGIN'])) {
+
+    header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+    header('Access-Control-Allow-Credentials: true');
+    header('Access-Control-Max-Age: 86400');    // cache for 1 day
+
+    if(isset($_GET['__amp_source_origin'])){
+        header('AMP-Access-Control-Allow-Source-Origin: '.urldecode($_GET['__amp_source_origin']));
+    }
+    else{
+        header("AMP-Access-Control-Allow-Source-Origin: {$_SERVER['HTTP_ORIGIN']}");
+    }
+}
+
+// Access-Control headers are received during OPTIONS requests
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
+        // may also be using PUT, PATCH, HEAD etc
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+        header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+
+    exit(0);
+}
 
 
 ## global config
@@ -173,7 +194,20 @@ if (is_array($_ARRAY_RUN_START))
 
 
 foreach ($GLOBAL_VARS as $key => $value) {
-    $AG_HTML->add_extra_data( $key , $value);
+    \xeki\html_manager::add_extra_data( $key , $value);
+}
+
+// auto ( default )
+// cached
+// Set base static files 
+
+
+if($_STATIC_FILES=='auto' || empty($_STATIC_FILES)){
+    $route =\xeki\core::set_static_files_route();
+    \xeki\html_manager::add_extra_data( "url_static_files" , $route);
+}
+else{
+    \xeki\html_manager::add_extra_data( "url_static_files" , $_STATIC_FILES);
 }
 
 \xeki\module_manager::xeki_load_core($MODULE_CORE_PATH);
