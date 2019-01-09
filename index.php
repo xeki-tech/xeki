@@ -241,7 +241,9 @@ if (is_array($_ARRAY_RUN_END))
 
 // please move this to core
 if (!\xeki\html_manager::$done_render) {
+
     require_once("./core/controllers/$_DEFAULT_PAGE_ERROR");
+    
 }
 
 ## libs
