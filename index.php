@@ -155,6 +155,13 @@ $AG_HTTP_REQUEST = new \xeki\http_request();
 
 $path_html = "$_SYSTEM_PATH_BASE/core/pages/";## this update by modules
 $path_cache = "$_SYSTEM_PATH_BASE/cache/pages/";## this update by modules
+
+//  check auto load 
+
+if(!file_exists('libs/vendor/autoload.php')){
+    d("Run composer, <br>More details https://xeki.io/php/composer");
+    die();
+}
 require_once('libs/vendor/autoload.php');
 require_once('libs/xeki_core/html_manager.php');
 $AG_HTML = new \xeki\html_manager($path_html,$path_cache);
