@@ -6,8 +6,6 @@
 
 \xeki\routes::any('example_list', function($vars){
 
-
-
     // query
     $books = [];
     \xeki\html_manager::render_json($books );
