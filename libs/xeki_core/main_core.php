@@ -1,8 +1,6 @@
 <?php 
-
-
 namespace xeki;
-
+require_once (dirname(__FILE__)."/support_libs/error.php");
 /* 
  
 */
@@ -71,8 +69,13 @@ class core
     public static function analyze_url()
     {
 
-        $server = $_SERVER['HTTP_HOST'];
-        $url = $_SERVER['REQUEST_URI'];
+
+        $host = isset($_SERVER['HTTP_HOST'])?$_SERVER['HTTP_HOST']:"cli";
+        $scheme = isset($_SERVER['REQUEST_SCHEME'])?$_SERVER['REQUEST_SCHEME']:"cli";
+        $url = isset($_SERVER['REQUEST_URI'])?$_SERVER['REQUEST_URI']:"cli";
+        $server_name = isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:"cli";
+
+
         // remove get params
         if (strpos($url, '?') !== false) {
             $url = substr($url, 0, strpos($url, '?'));
@@ -91,7 +94,7 @@ class core
             $_SERVER['REQUEST_SCHEME']=$info_cf['scheme'];
 
         }
-        $AG_BASE_COMPLETE = (isset($_SERVER['REQUEST_SCHEME']) ? $_SERVER['REQUEST_SCHEME'] : 'http') . '://' . $_SERVER['HTTP_HOST'] . '' . $AG_BASE;
+        $AG_BASE_COMPLETE = (isset($scheme) ? $scheme : 'http') . '://' . $host . '' . $AG_BASE;
 
         $AG_PARAMS = array_slice($AG_PARAMS, count(explode("/", $scriptName)) - 1);
 
@@ -125,7 +128,7 @@ class core
                 $_SERVER['HTTP_X_FORWARDED_HOST'] :
                 isset($_SERVER['HTTP_HOST']) ?
                     $_SERVER['HTTP_HOST'] :
-                    $_SERVER['SERVER_NAME'];
+                    $server_name;
 
         self::$URL_BASE = $AG_BASE;
         self::$URL_BASE_COMPLETE = $AG_BASE_COMPLETE;
@@ -170,6 +173,16 @@ class core
         echo '<script>window.location.replace("' . $to_url . '");</script>';
         die();
         # Prep string with some basic normalization
+    }
+
+    public static function is_error($error)
+    {
+        if($error instanceof \xeki\error ) {
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     function fix_to_slug($url){

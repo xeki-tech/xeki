@@ -70,6 +70,14 @@ RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
 
 RedirectMatch 404 /\.git
 
+RewriteRule xeki - [R=404]
+RewriteRule xeki.bat - [R=404]
+
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|inc|bak|md)$">
+  Order Allow,Deny
+  Deny from all
+</FilesMatch>
+
 # -------------------------
 # end xeki HTACCESS apache config
 # -------------------------

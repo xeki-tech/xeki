@@ -2,8 +2,10 @@
 
 /**
  * xeki FRAMEWORK : Main INDEX
- * Version 0.1
+ * Version 0.12
  */
+// cli ARGS
+
 
 
 $_DEBUG_MODE = true;
@@ -59,7 +61,6 @@ date_default_timezone_set('America/Bogota');
 
 ## CORS for WS comment this for security
 if (isset($_SERVER['HTTP_ORIGIN'])) {
-
     header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
     header('Access-Control-Allow-Credentials: true');
     header('Access-Control-Max-Age: 86400');    // cache for 1 day
@@ -147,6 +148,9 @@ else error_reporting(0);
 ## is like a print but for web
 
 
+##
+
+
 ### url analyzer ----------------------------------
 // URL
 require_once('libs/xeki_core/http_request.php');
@@ -166,10 +170,55 @@ require_once('libs/vendor/autoload.php');
 require_once('libs/xeki_core/html_manager.php');
 $AG_HTML = new \xeki\html_manager($path_html,$path_cache);
 
-// load core
+// load Module
 require_once('libs/xeki_core/module_manager.php');
 
 $MODULE_CORE_PATH = "$_SYSTEM_PATH_BASE/core/";
+
+
+if(isset($argv)){
+//    var_dump($argv);
+
+    if(isset($argv[1]))$type=$argv[1];else $type=false;
+    if(isset($argv[2]))$type_2=$argv[2];else $type_2=false;
+
+    if($type=='setup'){
+
+        if($type_2=='full' || !$type_2){
+            \xeki\module_manager::setup_cli();
+        }
+    }
+    else if($type=='add'){
+
+        if(empty($type_2)){
+            d("empty module");
+        }
+        else{
+            $repo = "https://github.com/xeki-framework/{$type_2}.git";
+
+            $type_2 = str_replace("-module","",$type_2);
+            $type_2 = str_replace("php-","",$type_2);
+            exec("git clone $repo modules/$type_2");
+            \xeki\module_manager::setup_cli($type_2);
+        }
+
+    }
+    else if($type=='run'){
+        d("Xeki php server testing: no use for production");
+        d("Server start");
+        d("http://localhost:8080");
+        $debug = exec("php -S localhost:8080");
+        d("Server end");
+        d($debug);
+
+    }
+    else{
+        d("no valid command type help");
+    }
+
+
+    die();
+}
 
 
 
@@ -243,7 +292,7 @@ if (is_array($_ARRAY_RUN_END))
 if (!\xeki\html_manager::$done_render) {
 
     require_once("./core/controllers/$_DEFAULT_PAGE_ERROR");
-    
+
 }
 
 ## libs
