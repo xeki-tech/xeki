@@ -66,6 +66,48 @@ class core
         return $_PAY_LOAD;
     }
 
+    public static function get_request_data(){
+        $data = [];
+        // check get
+        if(is_array($_GET)){
+            $data = $_GET;
+        }
+
+        // check post
+        if(is_array($_POST)){
+            $data = array_merge($_POST,$data);
+        }
+
+        // check payload
+        $request_body = file_get_contents('php://input');
+        $_PAY_LOAD = json_decode($request_body, true);
+
+        if(is_array($_PAY_LOAD)){
+            $data = array_merge($data,$_PAY_LOAD);
+        }
+
+        return $data;
+    }
+
+    public static function get_post_data(){
+        $data = [];
+
+        // check post
+        if(is_array($_POST)){
+            $data = array_merge($_POST,$data);
+        }
+
+        // check payload
+        $request_body = file_get_contents('php://input');
+        $_PAY_LOAD = json_decode($request_body, true);
+
+        if(is_array($_PAY_LOAD)){
+            $data = array_merge($data,$_PAY_LOAD);
+        }
+
+        return $data;
+    }
+
     public static function analyze_url()
     {
 
