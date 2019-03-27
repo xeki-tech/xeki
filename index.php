@@ -7,7 +7,6 @@
 // cli ARGS
 
 
-
 $_DEBUG_MODE = true;
 $_DEFAULT_PAGE_ERROR = '_default_error.php';
 $_SYSTEM_PATH_BASE = dirname(__FILE__);
@@ -65,10 +64,9 @@ if (isset($_SERVER['HTTP_ORIGIN'])) {
     header('Access-Control-Allow-Credentials: true');
     header('Access-Control-Max-Age: 86400');    // cache for 1 day
 
-    if(isset($_GET['__amp_source_origin'])){
-        header('AMP-Access-Control-Allow-Source-Origin: '.urldecode($_GET['__amp_source_origin']));
-    }
-    else{
+    if (isset($_GET['__amp_source_origin'])) {
+        header('AMP-Access-Control-Allow-Source-Origin: ' . urldecode($_GET['__amp_source_origin']));
+    } else {
         header("AMP-Access-Control-Allow-Source-Origin: {$_SERVER['HTTP_ORIGIN']}");
     }
 }
@@ -91,36 +89,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 //ini_set('session.gc_maxlifetime', 400000);
 //ini_set('session.cookie_lifetime', 4000000);
 
-$_ARRAY_RUN_END=array();
+$_ARRAY_RUN_END = array();
 ## general project
 require_once('core/config.php');
 
 ## CHECK FORCE SSL
 // if is not ssl and
-if ($AG_FORCE_SSL){
+if ($AG_FORCE_SSL) {
     // d($_SERVER);
     $redirect_to_ssl = false;
-    if(isset($_SERVER['HTTP_CF_VISITOR'])){ #for cloudflare ssl
-        $info_cf = json_decode($_SERVER['HTTP_CF_VISITOR'],true);
-        if($info_cf['scheme']=="http"){
+    if (isset($_SERVER['HTTP_CF_VISITOR'])) { #for cloudflare ssl
+        $info_cf = json_decode($_SERVER['HTTP_CF_VISITOR'], true);
+        if ($info_cf['scheme'] == "http") {
             $redirect_to_ssl = true;
         }
-    }
-    else if ( !isset($_SERVER['HTTPS']) or $_SERVER['HTTPS'] == 'off' ) {
+    } else if (!isset($_SERVER['HTTPS']) or $_SERVER['HTTPS'] == 'off') {
         $redirect_to_ssl = true;
     }
     // valid domain
-    if($redirect_to_ssl){
+    if ($redirect_to_ssl) {
         $temp_len = count($AG_SSL_DOMAINS);
-        if($temp_len>0){
-            $redirect_to_ssl=false;
-            foreach($AG_SSL_DOMAINS as $item){
-                if($_SERVER['HTTP_HOST']==$item)$redirect_to_ssl=true;
+        if ($temp_len > 0) {
+            $redirect_to_ssl = false;
+            foreach ($AG_SSL_DOMAINS as $item) {
+                if ($_SERVER['HTTP_HOST'] == $item) $redirect_to_ssl = true;
             }
         }
     }
-    if($redirect_to_ssl){
-        $to="https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    if ($redirect_to_ssl) {
+        $to = "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         header("Location: " . $to);
         echo '<meta http-equiv="refresh" content="0;URL="' . $to . '"/>';
         echo '<script>window.location.replace("' . $to . '");</script>';
@@ -130,10 +127,10 @@ if ($AG_FORCE_SSL){
 
 ## Check compress for domains
 $temp_len = count($COMPRESS_DOMAIN);
-if($temp_len > 0){
-    foreach($COMPRESS_DOMAIN as $item){
-        if($_SERVER['HTTP_HOST']==$item){
-            $_DEBUG_MODE=false;
+if ($temp_len > 0) {
+    foreach ($COMPRESS_DOMAIN as $item) {
+        if ($_SERVER['HTTP_HOST'] == $item) {
+            $_DEBUG_MODE = false;
         }
     }
 }
@@ -162,13 +159,13 @@ $path_cache = "$_SYSTEM_PATH_BASE/cache/pages/";## this update by modules
 
 //  check auto load 
 
-if(!file_exists('libs/vendor/autoload.php')){
+if (!file_exists('libs/vendor/autoload.php')) {
     d("Run composer, <br>More details https://xeki.io/php/composer");
     die();
 }
 require_once('libs/vendor/autoload.php');
 require_once('libs/xeki_core/html_manager.php');
-$AG_HTML = new \xeki\html_manager($path_html,$path_cache);
+$AG_HTML = new \xeki\html_manager($path_html, $path_cache);
 
 // load Module
 require_once('libs/xeki_core/module_manager.php');
@@ -176,34 +173,149 @@ require_once('libs/xeki_core/module_manager.php');
 $MODULE_CORE_PATH = "$_SYSTEM_PATH_BASE/core/";
 
 
-if(isset($argv)){
+if (isset($argv)) {
 //    var_dump($argv);
 
-    if(isset($argv[1]))$type=$argv[1];else $type=false;
-    if(isset($argv[2]))$type_2=$argv[2];else $type_2=false;
+    if (isset($argv[1])) $type = $argv[1]; else $type = false;
+    if (isset($argv[2])) $type_2 = $argv[2]; else $type_2 = false;
 
-    if($type=='setup'){
+    if ($type == 'setup') {
 
-        if($type_2=='full' || !$type_2){
+        if ($type_2 == 'full' || !$type_2) {
             \xeki\module_manager::setup_cli();
         }
-    }
-    else if($type=='add'){
-
-        if(empty($type_2)){
-            d("empty module");
-        }
         else{
-            $repo = "https://github.com/xeki-framework/{$type_2}.git";
-
-            $type_2 = str_replace("-module","",$type_2);
-            $type_2 = str_replace("php-","",$type_2);
-            exec("git clone $repo modules/$type_2");
             \xeki\module_manager::setup_cli($type_2);
         }
+    } else if ($type == 'add' || $type == 'update') {
+
+        if (empty($type_2)) {
+            d("empty module");
+        } else {
+
+            // download zip
+//            https://api.github.com/repos/mozilla/geckodriver/releases/latest
+            $repo = "https://github.com/repos/xeki-framework/{$type_2}/releases/latest";
+            // move to class cli
+            $process = download_module($type_2);
+            if (!$process) {
+                d("module dont found, check the name or the internet conection");
+            }
+
+
+            // old of clone
+//            $repo = "https://github.com/xeki-framework/{$type_2}/";
+//
+//            $type_2 = str_replace("-module","",$type_2);
+//            $type_2 = str_replace("php-","",$type_2);
+//            exec("git clone $repo modules/$type_2");
+//            \xeki\module_manager::setup_cli($type_2);
+        }
 
     }
-    else if($type=='run'){
+    else if($type=='create'){
+        if($type_2=='page' ){
+            // code_page
+            $f = fopen( 'php://stdin', 'r' );
+            d("Code page: (name file)");
+            while( $code = fgets( $f ) ) {
+                if(empty($code) || strpos ( $code , " " )!==false){
+                    d("invalid try_again");
+                }
+                else{
+                    break;
+                }
+
+            }
+            // url
+            d("Url page:");
+            while( $url = fgets( $f ) ) {
+                if(empty($url) || strpos ( $url , " " )!==false){
+                    d("invalid try_again");
+                }
+                else{
+
+                    break;
+                }
+
+            }
+
+
+            fclose( $f );
+
+            $code = trim(preg_replace('/\s\s+/', ' ', $code));
+            $url = trim(preg_replace('/\s\s+/', ' ', $url));
+
+            d("Code : $code");
+            d("Url  : $url");
+            d("Generated: page");
+            d("core/pages/$code");
+
+            $filename = "$MODULE_CORE_PATH/pages/$code.html";
+
+            if(file_exists($filename)){
+                d("page exist, will not create");
+            }
+            else{
+                $dirname = dirname($filename);
+                if (!is_dir($dirname))
+                {
+                    mkdir($dirname, 0755, true);
+                }
+
+                // if file exit dont
+                $file = fopen($filename, "wr") or die("Unable to open file!");
+                $to_write = $X_page_base;
+                $to_write = str_replace("|b|","\n\r",$to_write);
+                fwrite($file, $to_write);
+                fclose($file);
+                d("ok, the page created");
+
+            }
+
+            d("Generated: controller");
+            d("core/controllers/$code");
+
+            $filename = "$MODULE_CORE_PATH/controllers/$code.php";
+
+            if(file_exists($filename)){
+                d("controller exist, will not create");
+            }
+            else{
+                $dirname = dirname($filename);
+                if (!is_dir($dirname))
+                {
+                    mkdir($dirname, 0755, true);
+                }
+
+                // if file exit dont
+                $file = fopen($filename, "wr") or die("Unable to open file!");
+                $to_write = $X_page_controller;
+                $to_write = str_replace("|b|","\n\r",$to_write);
+                $to_write = str_replace("|page|","$code.html",$to_write);
+                fwrite($file, $to_write);
+                fclose($file);
+                d("ok, the controller created");
+            }
+
+
+            d("Generated: url");
+            d("core/url.php line");
+
+            $filename = "$MODULE_CORE_PATH/url.php";
+            $file = fopen($filename, 'a') or die('Cannot open file:  '.$file);
+            $data = "\\xeki\\routes::any('$url', '$code');\n";
+            fwrite($file, $data);
+            fclose($file);
+        }
+
+        else{
+
+        }
+
+
+    }
+    else if ($type == 'run') {
         d("Xeki php server testing: no use for production");
         d("Server start");
         d("http://localhost:8080");
@@ -211,15 +323,13 @@ if(isset($argv)){
         d("Server end");
         d($debug);
 
-    }
-    else{
+    } else {
         d("no valid command type help");
     }
 
 
     die();
 }
-
 
 
 // Global params for controllers
@@ -250,7 +360,7 @@ if (is_array($_ARRAY_RUN_START))
 
 
 foreach ($GLOBAL_VARS as $key => $value) {
-    \xeki\html_manager::add_extra_data( $key , $value);
+    \xeki\html_manager::add_extra_data($key, $value);
 }
 
 // auto ( default )
@@ -258,12 +368,11 @@ foreach ($GLOBAL_VARS as $key => $value) {
 // Set base static files 
 
 
-if($_STATIC_FILES=='auto' || empty($_STATIC_FILES)){
-    $route =\xeki\core::set_static_files_route();
-    \xeki\html_manager::add_extra_data( "url_static_files" , $route);
-}
-else{
-    \xeki\html_manager::add_extra_data( "url_static_files" , $_STATIC_FILES);
+if ($_STATIC_FILES == 'auto' || empty($_STATIC_FILES)) {
+    $route = \xeki\core::set_static_files_route();
+    \xeki\html_manager::add_extra_data("url_static_files", $route);
+} else {
+    \xeki\html_manager::add_extra_data("url_static_files", $_STATIC_FILES);
 }
 
 \xeki\module_manager::xeki_load_core($MODULE_CORE_PATH);
