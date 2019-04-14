@@ -73,8 +73,8 @@ function xeki_redirect($to){
  * @return int
  */
 function xeki_isMobile()
-{   
-    
+{
+
     return preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]);
 }
 
@@ -144,12 +144,12 @@ function to_no_tildes($str){
         $str);
     # array("a","e","i","o","u","n","A","E","I","O","U","N") tildes to no tildes
     $str = str_replace(array(chr(0xE1),chr(0xE9),chr(0xED),chr(0xF3),chr(0xFA),chr(0xF1),chr(0xC1),chr(0xC9),chr(0xCD),chr(0xD3),chr(0xDA),chr(0xD1)),
-                       array("a","e","i","o","u","n","A","E","I","O","U","N"),
-                       $str);
+        array("a","e","i","o","u","n","A","E","I","O","U","N"),
+        $str);
 
     $str = str_replace(array(chr(0xA1),chr(0xAB),chr(0xBB),chr(0xBF)),
-                       array("","","",""),
-                       $str);
+        array("","","",""),
+        $str);
     return $str;
 
 }
@@ -183,7 +183,7 @@ function is_utf8( $str )
        | [\xF1-\xF3][\x80-\xBF]{3}          # planes 4-15
        |  \xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
       )*$/x",
-      $str
+        $str
     );
 }
 
@@ -225,7 +225,7 @@ function force_utf8( $str, $inputEnc='WINDOWS-1252' )
     // You could also just return the original string.
     trigger_error(
         'Cannot convert string to UTF-8 in file '
-            . __FILE__ . ', line ' . __LINE__ . '!',
+        . __FILE__ . ', line ' . __LINE__ . '!',
         E_USER_ERROR
     );
 }
@@ -507,22 +507,22 @@ class BaseIntEncoder
     }
 */
 function cvs_to_array($file_route="", $_DELIMETER = ',', $_ENCLOSER = '"', $_ESCAPE = "\\"){
-        $file = new SplFileObject("$file_route");
-        $file->setFlags(SplFileObject::READ_CSV);
-        $file->setCsvControl($_DELIMETER, $_ENCLOSER, $_ESCAPE); // this is the default anyway though
+    $file = new SplFileObject("$file_route");
+    $file->setFlags(SplFileObject::READ_CSV);
+    $file->setCsvControl($_DELIMETER, $_ENCLOSER, $_ESCAPE); // this is the default anyway though
 
-        $info_cvs=array();foreach ($file as $row) {array_push($info_cvs,$row);} // convert to array the SPLFileOBJECT
-        $items_title = $info_cvs[0];unset($info_cvs[0]);
-        $result = array();
-        foreach ($info_cvs as $row) {
-            $item_temp = array();
-            for($i=0;$i<count($items_title);$i++){
-                if(strlen($items_title[$i])>0)
-                    $item_temp["$items_title[$i]"]=$row[$i];
-            }
-            array_push($result,$item_temp);
+    $info_cvs=array();foreach ($file as $row) {array_push($info_cvs,$row);} // convert to array the SPLFileOBJECT
+    $items_title = $info_cvs[0];unset($info_cvs[0]);
+    $result = array();
+    foreach ($info_cvs as $row) {
+        $item_temp = array();
+        for($i=0;$i<count($items_title);$i++){
+            if(strlen($items_title[$i])>0)
+                $item_temp["$items_title[$i]"]=$row[$i];
         }
-        return $result;
+        array_push($result,$item_temp);
+    }
+    return $result;
 }
 
 function utf8size($d)
@@ -564,9 +564,145 @@ function is_cli()
     }
 
     if( empty($_SERVER['REMOTE_ADDR']) and !isset($_SERVER['HTTP_USER_AGENT']) and count($_SERVER['argv']) > 0)
-	{
+    {
         return true;
     }
 
-	return false;
+    return false;
+}
+
+function download_module($name){
+    // check is is from xeki framework
+    if(strpos($name,'/')!==false){
+        d("custom modules in develop yet");
+    }
+
+    if(strpos($name,'-module')!==false){
+        $name = str_replace("-module","",$name);
+    }
+
+    $repo = "https://api.github.com/repos/xeki-framework/{$name}-module/releases/latest";
+    $repo_module = "https://api.github.com/repos/xeki-framework/{$name}/releases/latest";
+
+    // check is module exist
+    $url_download = get_last_version($repo);
+
+    if(!$url_download){
+        // check is module exit with -module
+        $url_download = get_last_version($repo_module);
+        if(!$url_download){
+            return false;
+        }
+    }
+
+    $zipFile = \xeki\core::$SYSTEM_PATH_BASE."/cache/modules/"; // Local Zip File Path
+    if (!file_exists($zipFile)) {
+        mkdir($zipFile, 0777, true);
+    }
+    $zipFile.="$name.zip";
+
+    $zipResource = fopen($zipFile, "w");
+// Get The Zip File From Server
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url_download);
+    curl_setopt($ch, CURLOPT_FAILONERROR, true);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Xeki ( xeki.io )');
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+    curl_setopt($ch, CURLOPT_BINARYTRANSFER,true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($ch, CURLOPT_FILE, $zipResource);
+    $page = curl_exec($ch);
+
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if($httpcode!==200) {
+        return false;
+    }
+    else{
+        d("Downloaded");
+        $zip = new ZipArchive;
+        $extractPath = \xeki\core::$SYSTEM_PATH_BASE."/modules/";
+
+        if (!file_exists($extractPath)) {
+            mkdir($extractPath, 0777, true);
+        }
+
+        if($zip->open($zipFile) != "true"){
+            echo "Error :- Unable to open the Zip File";
+        }
+
+        /* Extract Zip File */
+        $zip->extractTo($extractPath);
+        $zip->close();
+        // change name
+        if ($handle = opendir($extractPath)) {
+            while (false !== ($entry = readdir($handle))) {
+                if ($entry != "." && $entry != "..") {
+                    if(strpos("$entry","{$name}-module-")!==false){
+                        d("Setting folder");
+                        $downloaded_folder = $extractPath.''.$entry;
+                        $folder_final = $extractPath.''.$name;
+                        deleteFolder($folder_final);
+//                        d($folder_final);
+//                        d($downloaded_folder);
+                        closedir($handle);
+
+                        // delete old if exist
+                        rename($downloaded_folder, $folder_final);
+//                        unlink($downloaded_folder,true);
+//                        d("Set folder");
+                        \xeki\module_manager::setup_cli($name);
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+function get_last_version($url){
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Xeki ( xeki.io )');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+    curl_setopt($ch, CURLOPT_TIMEOUT,10);
+    $output = curl_exec($ch);
+
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    if($httpcode!==200) {
+        return false;
+    }
+    else{
+
+        $items = json_decode($output,true);
+//        d($items);
+//        d(PHP_OS);
+        return $items['zipball_url'];
+    }
+}
+
+function deleteFolder($str) {
+    //It it's a file.
+    if (is_file($str)) {
+        //Attempt to delete it.
+        return unlink($str);
+    }
+    //If it's a directory.
+    elseif (is_dir($str)) {
+        //Get a list of the files in this directory.
+        $scan = glob(rtrim($str,'/').'/*');
+        //Loop through the list of files.
+        foreach($scan as $index=>$path) {
+            //Call our recursive function.
+            deleteFolder($path);
+        }
+        //Remove the directory itself.
+        return @rmdir($str);
+    }
 }

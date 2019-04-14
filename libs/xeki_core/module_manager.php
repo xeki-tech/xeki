@@ -450,7 +450,6 @@ class module_manager
                     $file_objective = "{$_PATH_MODULES}/{$folder}/cli_setup.php";
                     d("Setup Module: " . $folder);
                     if (file_exists($file_objective)) {
-
                         require($file_objective);
                     }
                     else{
