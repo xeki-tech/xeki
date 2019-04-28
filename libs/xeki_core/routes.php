@@ -1,9 +1,8 @@
 <?php
-
 namespace xeki;
 
-use FastRoute;// lib of routes
-
+require_once (__DIR__ ."./routes/autoLoad.php");
+use RoutesXeki;
 class routes
 {
     const separator = "-:)(:-";// is a ridiculous separator for not generate config with other tags
@@ -108,7 +107,7 @@ class routes
 
         // load active modules routes
 
-        $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
+        $dispatcher = RoutesXeki\simpleDispatcher(function(RoutesXeki\RouteCollector $r) {
             // load saved routes
             foreach (self::$routes as $route){
                 //
@@ -130,7 +129,7 @@ class routes
                 try{
                     $r->addRoute($route['method'], $route['url'], $route['handler']);
                 }
-                catch (FastRoute\BadRouteException $e){
+                catch (RoutesXeki\BadRouteException $e){
                     d("duplicate url ");
                     d($route['method']);
                     d($route['url']);
@@ -160,14 +159,14 @@ class routes
         $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 //        die();
         switch ($routeInfo[0]) {
-            case FastRoute\Dispatcher::NOT_FOUND:
+            case RoutesXeki\Dispatcher::NOT_FOUND:
                 // ... 404 Not Found
                 break;
-            case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+            case RoutesXeki\Dispatcher::METHOD_NOT_ALLOWED:
                 $allowedMethods = $routeInfo[1];
                 // ... 405 Method Not Allowed
                 break;
-            case FastRoute\Dispatcher::FOUND:
+            case RoutesXeki\Dispatcher::FOUND:
                 $handler = $routeInfo[1];
                 // set module
                 $vars = $routeInfo[2];
