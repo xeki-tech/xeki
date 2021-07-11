@@ -19,15 +19,5 @@
 
 
 
-/**
- * Web optimization urls
- */
-\xeki\routes::get('crossdomain.xml', function($vars){
-    $html = \xeki\module_manager::import_module("html-twig");
-    $html->render('ciuu.html');
-
-});
-
-
 
 

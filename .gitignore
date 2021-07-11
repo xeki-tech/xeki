@@ -1,0 +1,20 @@
+## 
+## Xeki Php Framework 
+## GitIgnore file 
+## Version 0.1
+##
+
+# Ides
+/.idea/
+/.vscode/*
+
+# Cache twig xeki
+/app/cache/*
+/app/libs/vendor/*
+
+#composer
+composer.lock
+
+.DS_Store
+/app/static_files/img/*
+/app/static_files/upload/*

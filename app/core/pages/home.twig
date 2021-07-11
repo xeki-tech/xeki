@@ -1,0 +1,15 @@
+{% extends "_base.twig" %}
+{% block content %}
+<div class="container">
+    <div class="">
+        HI base ! 
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ parent() }}
+<script>
+    console.log("hi!!");
+</script>
+{% endblock %}
