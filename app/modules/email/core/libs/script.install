@@ -1,0 +1,12 @@
+composer require aws/aws-sdk-php
+
+composer require phpmailer/phpmailer
+
+composer require mailgun/mailgun-php 
+composer require php-http/curl-client 
+composer require guzzlehttp/psr7
+
+composer require guzzlehttp/guzzle
+composer require php-http/guzzle6-adapter
+
+composer require mailgun/mailgun-php php-http/curl-client guzzlehttp/psr7
