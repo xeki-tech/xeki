@@ -46,11 +46,11 @@ class module_manager
     /**
      * @param $PATH
      */
-    function xeki_load_core($PATH)
+    public static function xeki_load_core($PATH)
     {
         global $AG_HTTP_REQUEST;
         GLOBAL $AG_MODULES;
-        GLOBAL $AG_HTML;
+        GLOBAL $html;
 
         require_once "$PATH/url.php";
         require_once "$PATH/main.php";
@@ -140,14 +140,14 @@ class module_manager
                         $is_ok = true;
 
                 if (!$is_ok) {
-                    self::xeki_module_error($module_name);
+                    self::xeki_module_error($module_name." no init");
                 }
             }
         }
 
         // not found the module launch error
         if (!$object) {
-            self::xeki_module_error($module_name);
+            self::xeki_module_error($module_name."no object");
         }
 
         // save cache module info
@@ -188,7 +188,7 @@ class module_manager
         }
 
         if (!$AG_MAIN) {
-            self::xeki_module_error();
+            self::xeki_module_error($module_name."no main config");
         }
 
         return $AG_MAIN;
@@ -239,7 +239,7 @@ class module_manager
             $is_ok = true;
 
         if (!$is_ok)
-            self::xeki_module_error($module_name);
+            self::xeki_module_error($module_name."_ no init 242");
 
         return $AG_MAIN;
     }
@@ -320,10 +320,10 @@ class module_manager
     public function launch_xeki_action_method()
     {
         GLOBAL $AG_MODULES;
-        GLOBAL $AG_HTML;
-        GLOBAL $AG_BASE_COMPLETE;
+        GLOBAL $html;
+        GLOBAL $URL_BASE_COMPLETE;
         GLOBAL $AG_L_PARAM;
-        GLOBAL $AG_BASE;
+        GLOBAL $URL_BASE;
 
 
         $_PATH_MODULES = "core";
@@ -348,11 +348,11 @@ class module_manager
     public static function run_files_pattern_modules($file)
     {
         GLOBAL $AG_MODULES;
-        GLOBAL $AG_HTML;
+        GLOBAL $html;
         GLOBAL $AG_HTTP_REQUEST;
-        GLOBAL $AG_BASE_COMPLETE;
+        GLOBAL $URL_BASE_COMPLETE;
         GLOBAL $AG_L_PARAM;
-        GLOBAL $AG_BASE;
+        GLOBAL $URL_BASE;
 
 
         $_PATH_MODULES = dirname(__FILE__) . "/../../modules";
@@ -403,10 +403,10 @@ class module_manager
     {
         global $_ARRAY_MODULES_TO_LOAD_URLS;
         GLOBAL $AG_MODULES;
-        GLOBAL $AG_HTML;
-        GLOBAL $AG_BASE_COMPLETE;
+        GLOBAL $html;
+        GLOBAL $URL_BASE_COMPLETE;
         GLOBAL $AG_L_PARAM;
-        GLOBAL $AG_BASE;
+        GLOBAL $URL_BASE;
         GLOBAL $AG_HTTP_REQUEST;
 
         $_PATH_MODULES = dirname(__FILE__) . "/../../modules";
@@ -418,18 +418,18 @@ class module_manager
                 foreach ($_ARRAY_MODULES_TO_LOAD_URLS as $item) {
 
                     // load urls
-                    $file_objetive = "{$_PATH_MODULES}/{$item}/core/url.php";
-                    // d($file_objetive);
-                    if (file_exists($file_objetive)) {
-                        // d("run start $file_objetive");
-                        require($file_objetive);
+                    $file_objective = "{$_PATH_MODULES}/{$item}/core/url.php";
+                    // d($file_objective);
+                    if (file_exists($file_objective)) {
+                        // d("run start $file_objective");
+                        require($file_objective);
                     }
                     // load actions
-                    $file_objetive = "{$_PATH_MODULES}/{$item}/core/action_methods.php";
-                    // d($file_objetive);
-                    if (file_exists($file_objetive)) {
-                        // d("run start $file_objetive");
-                        require($file_objetive);
+                    $file_objective = "{$_PATH_MODULES}/{$item}/core/action_methods.php";
+                    // d($file_objective);
+                    if (file_exists($file_objective)) {
+                        // d("run start $file_objective");
+                        require($file_objective);
                     }
                 }
             } else {

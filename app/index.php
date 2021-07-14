@@ -1,38 +1,24 @@
 <?php
-
 /**
  * xeki FRAMEWORK : Main INDEX
- * Version 0.12
+ * Version 0.14
  */
-// cli ARGS
-
-
+header('Content-Type: text/html; charset=utf-8');
+date_default_timezone_set('America/Bogota');
 $_DEBUG_MODE = true;
 $_DEFAULT_PAGE_ERROR = '_default_error.php';
-$_SYSTEM_PATH_BASE = dirname(__FILE__);
-
 
 // load base library
 require_once('libs/xeki_util_methods.php');
-
 require_once('libs/xeki_core/main_core.php');
 
+$_SYSTEM_PATH_BASE = dirname(__FILE__);
 \xeki\core::$SYSTEM_PATH_BASE = $_SYSTEM_PATH_BASE;
-
-// load security library
-
-require_once('libs/xeki_core/security.php');
-
-\xeki\security::init();
-
-
 \xeki\core::init();
-// die();
 
 
-set_error_handler('errorHandlexeki');
-register_shutdown_function('errorHandlexeki');
-function errorHandlexeki()
+error_reporting(E_ALL);
+function errorHandler()
 {
     global $_DEBUG_MODE;
     global $_DEFAULT_PAGE_ERROR;
@@ -40,20 +26,26 @@ function errorHandlexeki()
     // fatal error, E_ERROR === 1
     if ($_DEBUG_MODE && isset($error['type'])) {
         if ($error['line'] != 0) {
-            d($error);
+            d("File: " . $error['file'] . " Line: <b>" . $error['line'] . "</b>");
+            d("Type: " . $error['type']);
+            d("Message: " . $error['message']);
+
+//            d($error);
         }
     }
 
-    if ($error['type'] === 64) {## handle errors
+    if (isset($error['type']) && $error['type'] === 64) {## handle errors
         require("core/controllers/$_DEFAULT_PAGE_ERROR");
         die();
     }
 }
 
+set_error_handler('errorHandler');
+register_shutdown_function('errorHandler');
+
+
 //trigger_error("Cannot divide by zero", E_USER_ERROR);
 
-header('Content-Type: text/html; charset=utf-8');
-date_default_timezone_set('America/Bogota');
 
 // option origin valid
 
@@ -96,7 +88,6 @@ require_once('core/config.php');
 ## CHECK FORCE SSL
 // if is not ssl and
 if ($AG_FORCE_SSL) {
-    // d($_SERVER);
     $redirect_to_ssl = false;
     if (isset($_SERVER['HTTP_CF_VISITOR'])) { #for cloudflare ssl
         $info_cf = json_decode($_SERVER['HTTP_CF_VISITOR'], true);
@@ -105,16 +96,24 @@ if ($AG_FORCE_SSL) {
         }
     } else if (!isset($_SERVER['HTTPS']) or $_SERVER['HTTPS'] == 'off') {
         $redirect_to_ssl = true;
+    }else if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == "https"){
+        $redirect_to_ssl = true; 
+        $_SERVER['HTTPS'] == 'on';
+        $_SERVER['scheme'] == 'https';
+        $_SERVER['REQUEST_SCHEME'] == 'https';
     }
     // valid domain
     if ($redirect_to_ssl) {
-        $temp_len = count($AG_SSL_DOMAINS);
-        if ($temp_len > 0) {
-            $redirect_to_ssl = false;
-            foreach ($AG_SSL_DOMAINS as $item) {
-                if ($_SERVER['HTTP_HOST'] == $item) $redirect_to_ssl = true;
+        if (is_countable($AG_SSL_DOMAINS)){
+            $temp_len = count($AG_SSL_DOMAINS);
+            if ($temp_len > 0) {
+                $redirect_to_ssl = false;
+                foreach ($AG_SSL_DOMAINS as $item) {
+                    if ($_SERVER['HTTP_HOST'] == $item) $redirect_to_ssl = true;
+                }
             }
         }
+
     }
     if ($redirect_to_ssl) {
         $to = "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
@@ -126,11 +125,13 @@ if ($AG_FORCE_SSL) {
 }
 
 ## Check compress for domains
-$temp_len = count($COMPRESS_DOMAIN);
-if ($temp_len > 0) {
-    foreach ($COMPRESS_DOMAIN as $item) {
-        if ($_SERVER['HTTP_HOST'] == $item) {
-            $_DEBUG_MODE = false;
+if (is_countable($COMPRESS_DOMAIN)){
+    $temp_len = count($COMPRESS_DOMAIN);
+    if ($temp_len > 0) {
+        foreach ($COMPRESS_DOMAIN as $item) {
+            if ($_SERVER['HTTP_HOST'] == $item) {
+                $_DEBUG_MODE = false;
+            }
         }
     }
 }
@@ -153,19 +154,15 @@ else error_reporting(0);
 require_once('libs/xeki_core/http_request.php');
 require_once('libs/xeki_core/routes.php');
 $AG_HTTP_REQUEST = new \xeki\http_request();
-
 $path_html = "$_SYSTEM_PATH_BASE/core/pages/";## this update by modules
-$path_cache = "$_SYSTEM_PATH_BASE/cache/pages/";## this update by modules
-
-//  check auto load 
-
+$path_cache = sys_get_temp_dir()."/cache/pages/";## this update by modules
+//  check auto load
 if (!file_exists('libs/vendor/autoload.php')) {
     d("Run composer, <br>More details https://xeki.io/php/composer");
     die();
 }
 require_once('libs/vendor/autoload.php');
-require_once('libs/xeki_core/html_manager.php');
-$AG_HTML = new \xeki\html_manager($path_html, $path_cache);
+
 
 // load Module
 require_once('libs/xeki_core/module_manager.php');
@@ -183,8 +180,7 @@ if (isset($argv)) {
 
         if ($type_2 == 'full' || !$type_2) {
             \xeki\module_manager::setup_cli();
-        }
-        else{
+        } else {
             \xeki\module_manager::setup_cli($type_2);
         }
     } else if ($type == 'add' || $type == 'update') {
@@ -212,28 +208,25 @@ if (isset($argv)) {
 //            \xeki\module_manager::setup_cli($type_2);
         }
 
-    }
-    else if($type=='create'){
-        if($type_2=='page' ){
+    } else if ($type == 'create') {
+        if ($type_2 == 'page') {
             // code_page
-            $f = fopen( 'php://stdin', 'r' );
+            $f = fopen('php://stdin', 'r');
             d("Code page: (name file)");
-            while( $code = fgets( $f ) ) {
-                if(empty($code) || strpos ( $code , " " )!==false){
+            while ($code = fgets($f)) {
+                if (empty($code) || strpos($code, " ") !== false) {
                     d("invalid try_again");
-                }
-                else{
+                } else {
                     break;
                 }
 
             }
             // url
             d("Url page:");
-            while( $url = fgets( $f ) ) {
-                if(empty($url) || strpos ( $url , " " )!==false){
+            while ($url = fgets($f)) {
+                if (empty($url) || strpos($url, " ") !== false) {
                     d("invalid try_again");
-                }
-                else{
+                } else {
 
                     break;
                 }
@@ -241,7 +234,7 @@ if (isset($argv)) {
             }
 
 
-            fclose( $f );
+            fclose($f);
 
             $code = trim(preg_replace('/\s\s+/', ' ', $code));
             $url = trim(preg_replace('/\s\s+/', ' ', $url));
@@ -253,20 +246,18 @@ if (isset($argv)) {
 
             $filename = "$MODULE_CORE_PATH/pages/$code.html";
 
-            if(file_exists($filename)){
+            if (file_exists($filename)) {
                 d("page exist, will not create");
-            }
-            else{
+            } else {
                 $dirname = dirname($filename);
-                if (!is_dir($dirname))
-                {
+                if (!is_dir($dirname)) {
                     mkdir($dirname, 0755, true);
                 }
 
                 // if file exit dont
                 $file = fopen($filename, "wr") or die("Unable to open file!");
                 $to_write = $X_page_base;
-                $to_write = str_replace("|b|","\n\r",$to_write);
+                $to_write = str_replace("|b|", "\n\r", $to_write);
                 fwrite($file, $to_write);
                 fclose($file);
                 d("ok, the page created");
@@ -278,21 +269,18 @@ if (isset($argv)) {
 
             $filename = "$MODULE_CORE_PATH/controllers/$code.php";
 
-            if(file_exists($filename)){
+            if (file_exists($filename)) {
                 d("controller exist, will not create");
-            }
-            else{
+            } else {
                 $dirname = dirname($filename);
-                if (!is_dir($dirname))
-                {
+                if (!is_dir($dirname)) {
                     mkdir($dirname, 0755, true);
                 }
 
                 // if file exit dont
                 $file = fopen($filename, "wr") or die("Unable to open file!");
-                $to_write = $X_page_controller;
-                $to_write = str_replace("|b|","\n\r",$to_write);
-                $to_write = str_replace("|page|","$code.html",$to_write);
+                $to_write = str_replace("|b|", "\n\r", $to_write);
+                $to_write = str_replace("|page|", "$code.html", $to_write);
                 fwrite($file, $to_write);
                 fclose($file);
                 d("ok, the controller created");
@@ -303,19 +291,16 @@ if (isset($argv)) {
             d("core/url.php line");
 
             $filename = "$MODULE_CORE_PATH/url.php";
-            $file = fopen($filename, 'a') or die('Cannot open file:  '.$file);
+            $file = fopen($filename, 'a') or die('Cannot open file:  ' . $file);
             $data = "\\xeki\\routes::any('$url', '$code');\n";
             fwrite($file, $data);
             fclose($file);
-        }
-
-        else{
+        } else {
 
         }
 
 
-    }
-    else if ($type == 'run') {
+    } else if ($type == 'run') {
         d("Xeki php server testing: no use for production");
         d("Server start");
         d("http://localhost:8080");
@@ -333,10 +318,10 @@ if (isset($argv)) {
 
 
 // Global params for controllers
-$AG_BASE = $AG_HTML->AG_BASE;
-$AG_BASE_COMPLETE = $AG_HTML->AG_BASE_COMPLETE;
-$AG_PARAMS = $AG_HTML->AG_PARAMS;
-$AG_L_PARAM = $AG_HTML->AG_L_PARAM;
+$URL_BASE = $html->URL_BASE;
+$URL_BASE_COMPLETE = $html->URL_BASE_COMPLETE;
+$AG_PARAMS = $html->AG_PARAMS;
+$AG_L_PARAM = $html->AG_L_PARAM;
 
 
 // End Global params
@@ -352,31 +337,14 @@ if (is_array($_ARRAY_RUN_START))
 
 // script loop run end
 
-//d($AG_BASE);
+//d($URL_BASE);
 //d($AG_PARAMS);
 //d($AG_L_PARAM);
-//d($AG_BASE_COMPLETE);
-// $routes = $AG_HTTP_REQUEST->process_request();// deprecated action methods works like urls 
-
-
-foreach ($GLOBAL_VARS as $key => $value) {
-    \xeki\html_manager::add_extra_data($key, $value);
-}
-
-// auto ( default )
-// cached
-// Set base static files 
-
-
-if ($_STATIC_FILES == 'auto' || empty($_STATIC_FILES)) {
-    $route = \xeki\core::set_static_files_route();
-    \xeki\html_manager::add_extra_data("url_static_files", $route);
-} else {
-    \xeki\html_manager::add_extra_data("url_static_files", $_STATIC_FILES);
-}
+//d($URL_BASE_COMPLETE);
 
 \xeki\module_manager::xeki_load_core($MODULE_CORE_PATH);
 \xeki\module_manager::load_modules_url();
+
 ## launch request;
 //$routes = $AG_HTTP_REQUEST->getRoutes();
 //d($routes);
@@ -398,15 +366,8 @@ if (is_array($_ARRAY_RUN_END))
 ## launch error page if not redered some page
 
 // please move this to core
-if (!\xeki\html_manager::$done_render) {
-
-    require_once("./core/controllers/$_DEFAULT_PAGE_ERROR");
-
-}
-
-## libs
-
-### urls analyzer  FINISH -----------------------------------
-
-### POST analyzer  FINISH -----------------------------------
+//if (!\xeki\html_manager::$done_render) {
+//    d('no render');
+//    require_once("./core/controllers/$_DEFAULT_PAGE_ERROR");
+//}
 

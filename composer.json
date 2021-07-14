@@ -1,7 +1,11 @@
 {
   "config": {
-    "vendor-dir": "libs/vendor"
+    "vendor-dir": "app/libs/vendor",
+    "platform": {
+      "php": "8.0.0"
+    }
   },
   "require": {
+    "twig/twig": "^3.3"
   }
 }

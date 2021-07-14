@@ -149,10 +149,10 @@ require_once('libs/xeki_core/routes.php');
 $AG_HTTP_REQUEST = new \xeki\http_request();
 
 $path_html = "$_SYSTEM_PATH_BASE/core/pages/";## this update by modules
-$path_cache = "$_SYSTEM_PATH_BASE/cache/pages/";## this update by modules
+$path_cache = sys_get_temp_dir()."/cache/pages/";## this update by modules
 require_once('libs/vendor/autoload.php');
 require_once('libs/xeki_core/html_manager.php');
-$AG_HTML = new \xeki\html_manager($path_html,$path_cache);
+$html = new \xeki\html_manager($path_html,$path_cache);
 
 // load core
 require_once('libs/xeki_core/module_manager.php');
@@ -162,10 +162,10 @@ $MODULE_CORE_PATH = "$_SYSTEM_PATH_BASE/core/";
 
 
 // Global params for controllers
-$AG_BASE = $AG_HTML->AG_BASE;
-$AG_BASE_COMPLETE = $AG_HTML->AG_BASE_COMPLETE;
-$AG_PARAMS = $AG_HTML->AG_PARAMS;
-$AG_L_PARAM = $AG_HTML->AG_L_PARAM;
+$URL_BASE = $html->URL_BASE;
+$URL_BASE_COMPLETE = $html->URL_BASE_COMPLETE;
+$AG_PARAMS = $html->AG_PARAMS;
+$AG_L_PARAM = $html->AG_L_PARAM;
 
 
 // End Global params
@@ -181,15 +181,15 @@ if (is_array($_ARRAY_RUN_START))
 
 // script loop run end
 
-//d($AG_BASE);
+//d($URL_BASE);
 //d($AG_PARAMS);
 //d($AG_L_PARAM);
-//d($AG_BASE_COMPLETE);
+//d($URL_BASE_COMPLETE);
 // $routes = $AG_HTTP_REQUEST->process_request();// deprecated action methods works like urls 
 
 
 foreach ($GLOBAL_VARS as $key => $value) {
-    $AG_HTML->add_extra_data( $key , $value);
+    $html->add_extra_data( $key , $value);
 }
 
 \xeki\module_manager::xeki_load_core($MODULE_CORE_PATH);

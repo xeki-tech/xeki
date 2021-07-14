@@ -8,28 +8,13 @@
 /.idea/
 /.vscode/*
 
-
 # Cache twig xeki
-/cache/*
-
-# For yarn 
-static_files/vendor/*
-yarn.lock
-yarn-error.log
-
-# Composer vendor
-libs/vendor
-
-# node
-/node_modules/*
-
+/app/cache/*
+/app/libs/vendor/*
 
 #composer
 composer.lock
 
 .DS_Store
-
-
-#module admin 
-
-static_files/xeki_admin/
+/app/static_files/img/*
+/app/static_files/upload/*

@@ -49,7 +49,7 @@ $meta_data = array(
         "price:currency" => "",
     ),
 );
-$AG_HTML->set_social_meta_tags($meta_data);
+$html->set_social_meta_tags($meta_data);
 ```
 
 ## MODULES

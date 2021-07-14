@@ -1,8 +1,6 @@
 <?php
 
 
-
-
 //example url post
 \xeki\routes::post('example/post/request', function(){
     $_POST;

@@ -10,7 +10,7 @@
  * Nice echo in xeki just use d($array); and debug!
  * @param $info
  */
-function d($info)
+function d($info=' ')
 {
     if (PHP_SAPI === 'cli'){
         print_r($info);

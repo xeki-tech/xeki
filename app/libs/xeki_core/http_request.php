@@ -355,9 +355,9 @@ class http_request
     public function process_request()
     {
         global $AG_MODULES;
-        GLOBAL $AG_BASE_COMPLETE;
+        GLOBAL $URL_BASE_COMPLETE;
         GLOBAL $AG_L_PARAM;
-        GLOBAL $AG_BASE;
+        GLOBAL $URL_BASE;
         // Analyce xeki_action
 
         $xeki_action = '';
@@ -366,6 +366,10 @@ class http_request
         $AG_POST_ACTION = false;
         if (!empty($_POST['xeki_action'])) {
             $xeki_action = $_POST['xeki_action'];
+            $AG_POST_ACTION = true;
+        }
+        else  if (!empty($_POST['xeki-action'])) {
+            $xeki_action = $_POST['xeki-action'];
             $AG_POST_ACTION = true;
         }
 
@@ -394,7 +398,7 @@ class http_request
     public function launch_controller()
     {
         // BGlobal variables
-        global $AG_HTML;
+        global $html;
         global $AG_MODULES;
         global $_SYSTEM_PATH_BASE;
         global $_DEFAULT_PAGE_ERROR;

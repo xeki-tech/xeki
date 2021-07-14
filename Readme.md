@@ -1,14 +1,33 @@
 # Xeki base project 
 
 ## Quick build
-- Instalacion
-  
+
 ### Composer 
 Install composer https://getcomposer.org/
-
 After installed run on folder of you proyect composer install
 
-### Yarn  
+### Create project 
 
-Install Yarn https://yarnpkg.com/en/
-After installed run on folder of you proyect yarn install and add your libraries 
+#### init project
+
+```
+    composer create-project xeki-tech/xeki myProject
+```
+
+#### add modules
+
+```
+    composer require xeki-tech/html
+    composer require xeki-tech/db
+    composer require xeki-tech/auth
+    composer require xeki-tech/admin
+```
+
+
+
+## Deploy
+- local
+- docker 
+- cloud run 
+- app engine
+- cpanel 
