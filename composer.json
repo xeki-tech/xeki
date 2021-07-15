@@ -1,4 +1,10 @@
 {
+  "name": "xeki-tech/xeki",
+  "type": "framework",
+  "description": "Xeki framework for php",
+  "keywords": ["framework","php"],
+  "homepage": "https://xeki.tech/",
+  "minimum-stability": "dev",
   "config": {
     "vendor-dir": "app/libs/vendor",
     "platform": {
@@ -6,6 +12,5 @@
     }
   },
   "require": {
-    "twig/twig": "^3.3"
   }
 }

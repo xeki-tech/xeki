@@ -49,8 +49,8 @@ class module_manager
     public static function xeki_load_core($PATH)
     {
         global $AG_HTTP_REQUEST;
-        GLOBAL $AG_MODULES;
-        GLOBAL $html;
+        global $AG_MODULES;
+        global $html;
 
         require_once "$PATH/url.php";
         require_once "$PATH/main.php";
@@ -86,6 +86,7 @@ class module_manager
     public static function import_module($module_name, $module_config = "main", $custom_variables = array())
     {
         $_PATH_MODULES = dirname(__FILE__) . "/../../modules";
+        $_PATH_MODULES_VENDOR = dirname(__FILE__) . "/../../libs/vendor";
         $_PATH_CORE = dirname(__FILE__) . "/../../core/modules_config";
 
         // this help to ux of code :)
@@ -96,8 +97,6 @@ class module_manager
         }
 
         // check folders and auto complete
-
-
         // cache system for recycle initialised modules
         $var_loaded_modules = self::$cache_modules;
         if (!isset($var_loaded_modules[$module_name])) self::$cache_modules[$module_name] = array();
@@ -107,12 +106,12 @@ class module_manager
             return $var_loaded_modules[$module_name][$module_config];
         }
 
-
-        // if #module_config is array run inline config 7
+        // if #modules_config is array run inline config 7
         // load config dfault or custom and rewrite with array gived
 
         $_MAIN_MODULE = "$_PATH_MODULES/$module_name/main.php";
-        $_MAIN_MODULE_TRY_1 = "$_PATH_MODULES/$module_name-module/main.php";
+        $_MAIN_MODULE_TRY_1 = "$_PATH_MODULES_VENDOR/xeki-tech/$module_name/main.php";
+        $_MAIN_MODULE_TRY_2 = "$_PATH_MODULES_VENDOR/module/main.php";
 
         // get config of module
         $MODULE_DATA_CONFIG = self::get_config_array($module_name, $module_config, $custom_variables);
@@ -126,8 +125,10 @@ class module_manager
         } else if (file_exists($_MAIN_MODULE_TRY_1)) {
             $AG_MAIN = self::getMainModule($module_name, $_MAIN_MODULE_TRY_1, $MODULE_DATA_CONFIG);
             $object = $AG_MAIN->getObject();
+        } else if (file_exists($_MAIN_MODULE_TRY_2)) {
+            $AG_MAIN = self::getMainModule($module_name, $_MAIN_MODULE_TRY_2, $MODULE_DATA_CONFIG);
+            $object = $AG_MAIN->getObject();
         }
-
 
         $_MAIN_MODULE_COMMON = '';
         if (!$object) {
@@ -140,14 +141,14 @@ class module_manager
                         $is_ok = true;
 
                 if (!$is_ok) {
-                    self::xeki_module_error($module_name." no init");
+                    self::xeki_module_error($module_name . " no init");
                 }
             }
         }
 
         // not found the module launch error
         if (!$object) {
-            self::xeki_module_error($module_name."no object");
+            self::xeki_module_error($module_name . " no object");
         }
 
         // save cache module info
@@ -188,7 +189,7 @@ class module_manager
         }
 
         if (!$AG_MAIN) {
-            self::xeki_module_error($module_name."no main config");
+            self::xeki_module_error($module_name . "no main config");
         }
 
         return $AG_MAIN;
@@ -206,24 +207,29 @@ class module_manager
     public static function getMainModule($module_name, $_MAIN_MODULE, $MODULE_DATA_CONFIG)
     {
         $_PATH_MODULES = dirname(__FILE__) . "/../../modules";
+        $_PATH_MODULES_VENDOR = dirname(__FILE__) . "/../../libs/vendor";
+
         // import config
 
-        $__module_name=false;
-        $__config_path=false;
-        $__name_space=false;
-        $__modules_required=false;
+        $__module_name = false;
+        $__config_path = false;
+        $__name_space = false;
+        $__modules_required = false;
 
         $_config = "$_PATH_MODULES/$module_name/_module.php";
-        $_config_TRY_1 = "$_PATH_MODULES/$module_name-module/_module.php";
+        $_config_TRY_1 = "$_PATH_MODULES_VENDOR/xeki-tech/$module_name/_module.php";
+        $_config_TRY_2 = "$_PATH_MODULES_VENDOR/module/_module.php";
 
 
         $object = false;
         if (file_exists($_config)) {
-            require ($_config);
+            require($_config);
         } else if (file_exists($_config_TRY_1)) {
-            require ($_config_TRY_1);
+            require($_config_TRY_1);
         }
-
+        else if (file_exists($_config_TRY_2)) {
+            require($_config_TRY_2);
+        }
 
         if (!class_exists("$__name_space\main", false)) {
             require_once $_MAIN_MODULE;
@@ -239,7 +245,7 @@ class module_manager
             $is_ok = true;
 
         if (!$is_ok)
-            self::xeki_module_error($module_name."_ no init 242");
+            self::xeki_module_error($module_name . "_ no init 242");
 
         return $AG_MAIN;
     }
@@ -258,30 +264,28 @@ class module_manager
         $MODULE_DATA_CONFIG = array();
         $_MAIN_MODULE_CONFIG = false;
 
-        if(!$_MAIN_MODULE_CONFIG) {
-            $file_route_module="{$_PATH_CORE}/{$module_name}/config.php";
+        if (!$_MAIN_MODULE_CONFIG) {
+            $file_route_module = "{$_PATH_CORE}/{$module_name}/html-twig.php";
             if (file_exists($file_route_module)) {
                 $_MAIN_MODULE_CONFIG = $file_route_module;
             }
         }
 
 
-        if(!$_MAIN_MODULE_CONFIG) {
-            $file_route_module="{$_PATH_CORE}/{$module_name}-module/config.php";
+        if (!$_MAIN_MODULE_CONFIG) {
+            $file_route_module = "{$_PATH_CORE}/{$module_name}-module/html-twig.php";
             if (file_exists($file_route_module)) {
                 $_MAIN_MODULE_CONFIG = $file_route_module;
             }
         }
 
 
-        if ($_MAIN_MODULE_CONFIG !==false) {
+        if ($_MAIN_MODULE_CONFIG !== false) {
             require($_MAIN_MODULE_CONFIG);
-        }
-        else{
+        } else {
             d("Config not found {$module_name}<br> Run php index.php setup, <br>More details https://xeki.io/php/setup");
             die();
         }
-
 
 
 //      OLD MERGE configs default and inner module
@@ -292,13 +296,13 @@ class module_manager
 //
 //
 //        #custom TODO create this for
-//        if (file_exists("{$_PATH_CORE}/{$module_name}/config.php")) {
-//            $_MAIN_MODULE_CONFIG = "{$_PATH_CORE}/{$module_name}/config.php";
+//        if (file_exists("{$_PATH_CORE}/{$module_name}/html-twig.php")) {
+//            $_MAIN_MODULE_CONFIG = "{$_PATH_CORE}/{$module_name}/html-twig.php";
 //            require($_MAIN_MODULE_CONFIG);
 //        }
 //
 //
-//        $MODULE_DATA_CONFIG = $MODULE_DATA_CONFIG[$module_config];
+//        $MODULE_DATA_CONFIG = $MODULE_DATA_CONFIG[$modules_config];
 //
 //
 //        $MODULE_DATA_CONFIG = array_merge($TEMP_MAIN_MODULE, $MODULE_DATA_CONFIG);
@@ -319,16 +323,16 @@ class module_manager
      */
     public function launch_xeki_action_method()
     {
-        GLOBAL $AG_MODULES;
-        GLOBAL $html;
-        GLOBAL $URL_BASE_COMPLETE;
-        GLOBAL $AG_L_PARAM;
-        GLOBAL $URL_BASE;
+        global $AG_MODULES;
+        global $html;
+        global $URL_BASE_COMPLETE;
+        global $AG_L_PARAM;
+        global $URL_BASE;
 
 
         $_PATH_MODULES = "core";
         $_MAIN_MODULE = "$_PATH_MODULES/action_methods.php";
-        $_MAIN_MODULE_CONFIG = "$_PATH_MODULES/config.php";
+        $_MAIN_MODULE_CONFIG = "$_PATH_MODULES/html-twig.php";
 
         $object = false;
         if (file_exists($_MAIN_MODULE)) {
@@ -347,12 +351,12 @@ class module_manager
      */
     public static function run_files_pattern_modules($file)
     {
-        GLOBAL $AG_MODULES;
-        GLOBAL $html;
-        GLOBAL $AG_HTTP_REQUEST;
-        GLOBAL $URL_BASE_COMPLETE;
-        GLOBAL $AG_L_PARAM;
-        GLOBAL $URL_BASE;
+        global $AG_MODULES;
+        global $html;
+        global $AG_HTTP_REQUEST;
+        global $URL_BASE_COMPLETE;
+        global $AG_L_PARAM;
+        global $URL_BASE;
 
 
         $_PATH_MODULES = dirname(__FILE__) . "/../../modules";
@@ -402,12 +406,12 @@ class module_manager
     public static function load_modules_url()
     {
         global $_ARRAY_MODULES_TO_LOAD_URLS;
-        GLOBAL $AG_MODULES;
-        GLOBAL $html;
-        GLOBAL $URL_BASE_COMPLETE;
-        GLOBAL $AG_L_PARAM;
-        GLOBAL $URL_BASE;
-        GLOBAL $AG_HTTP_REQUEST;
+        global $AG_MODULES;
+        global $html;
+        global $URL_BASE_COMPLETE;
+        global $AG_L_PARAM;
+        global $URL_BASE;
+        global $AG_HTTP_REQUEST;
 
         $_PATH_MODULES = dirname(__FILE__) . "/../../modules";
         // d($_ARRAY_MODULES_TO_LOAD_URLS);
@@ -439,20 +443,19 @@ class module_manager
 
     }
 
-    public static function setup_cli($module=false)
+    public static function setup_cli($module = false)
     {
         $_PATH_MODULES = dirname(__FILE__) . "/../../modules/";
         $folders_modules = scandir($_PATH_MODULES);
         foreach ($folders_modules as $folder) {
             if ($folder !== '.' && $folder !== '..' && $folder !== '_common') {
 
-                if($module==false || $module==$folder){
+                if ($module == false || $module == $folder) {
                     $file_objective = "{$_PATH_MODULES}/{$folder}/cli_setup.php";
                     d("Setup Module: " . $folder);
                     if (file_exists($file_objective)) {
                         require($file_objective);
-                    }
-                    else{
+                    } else {
                         d("-- No file setup");
                     }
                 }
