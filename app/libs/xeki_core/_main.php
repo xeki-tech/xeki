@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
 $_ARRAY_RUN_END=array();
 ## general project
-require_once('core/config.php');
+require_once('core/html-twig.php');
 
 ## CHECK FORCE SSL
 // if is not ssl and
