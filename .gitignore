@@ -5,8 +5,8 @@
 ##
 
 # Ides
-/.idea/
-/.vscode/*
+.vscode/*
+.idea/*
 
 # Cache twig xeki
 /app/cache/*
@@ -18,3 +18,4 @@ composer.lock
 .DS_Store
 /app/static_files/img/*
 /app/static_files/upload/*
+
