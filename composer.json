@@ -5,6 +5,7 @@
   "keywords": ["framework","php"],
   "homepage": "https://xeki.tech/",
   "minimum-stability": "dev",
+  "htaccess-protect" : true,
   "config": {
     "vendor-dir": "app/libs/vendor",
     "platform": {
@@ -12,5 +13,6 @@
     }
   },
   "require": {
+    "xeki-tech/core": "^1.0"
   }
 }
