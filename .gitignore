@@ -6,7 +6,7 @@
 
 # Ides
 .vscode/*
-.idea/*
+/.idea/*
 
 # Cache twig xeki
 /app/cache/*
