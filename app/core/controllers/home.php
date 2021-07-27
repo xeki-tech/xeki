@@ -1,2 +1,5 @@
 <?php
-\xeki\core::PrintJson(["response"=>'ok',"date"=>date("Y-m-d")]);
+
+use xeki\core;
+
+core::PrintJson(["response" => 'ok', "date" => date("Y-m-d")]);

@@ -13,6 +13,6 @@
     }
   },
   "require": {
-    "xeki-tech/core": "^1.0.1"
+    "xeki-tech/core": "^1.0"
   }
 }
