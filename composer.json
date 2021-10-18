@@ -14,5 +14,10 @@
   },
   "require": {
     "xeki-tech/core": "^1.0"
+  },
+  "scripts": {
+    "serve": [
+      "cd app && php -S localhost:8088"
+    ]
   }
 }
