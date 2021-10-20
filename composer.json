@@ -2,11 +2,15 @@
   "name": "xeki-tech/xeki",
   "type": "framework",
   "description": "Xeki framework for php",
-  "keywords": ["framework","php"],
+  "keywords": [
+    "framework",
+    "php"
+  ],
   "homepage": "https://xeki.tech/",
   "minimum-stability": "dev",
-  "htaccess-protect" : true,
+  "htaccess-protect": true,
   "config": {
+    "process-timeout": 0,
     "vendor-dir": "app/libs/vendor",
     "platform": {
       "php": "8.0.0"
@@ -17,7 +21,7 @@
   },
   "scripts": {
     "serve": [
-      "cd app && php -S localhost:8088"
+      "php -S localhost:0 -t app/"
     ]
   }
 }
